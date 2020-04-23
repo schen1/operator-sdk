@@ -176,6 +176,12 @@ operator-sdk build quay.io/example/nginx-operator:v0.0.1
 docker push quay.io/example/nginx-operator:v0.0.1
 ```
 
+If you created your operator using `--helm-chart`, update the service account namespace in the generated `ClusterRoleBinding` to match where you are deploying your operator.
+```
+$ export OPERATOR_NAMESPACE=$(kubectl config view --minify -o jsonpath='{.contexts[0].context.namespace}')
+$ sed -i "s|REPLACE_NAMESPACE|$OPERATOR_NAMESPACE|g" deploy/role_binding.yaml
+```
+
 Kubernetes deployment manifests are generated in `deploy/operator.yaml`. The
 deployment image in this file needs to be modified from the placeholder
 `REPLACE_IMAGE` to the previous built image. To do this run:
@@ -185,10 +191,11 @@ sed -i 's|REPLACE_IMAGE|quay.io/example/nginx-operator:v0.0.1|g' deploy/operator
 ```
 
 **Note**
-If you are performing these steps on OSX, use the following `sed` command instead:
+If you are performing these steps on OSX, use the following `sed` commands instead:
 
 ```sh
 sed -i "" 's|REPLACE_IMAGE|quay.io/example/nginx-operator:v0.0.1|g' deploy/operator.yaml
+sed -i "" "s|REPLACE_NAMESPACE|$OPERATOR_NAMESPACE|g" deploy/role_binding.yaml
 ```
 
 Deploy the nginx-operator:
